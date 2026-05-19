@@ -6,8 +6,7 @@ import io
 import tempfile
 import shutil
 
-import pythoncom
-import win32com.client
+import openpyxl
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -52,69 +51,39 @@ def get_png_path(png_index: dict, file_path: str, sheet_name: str) -> str | None
 
 
 def extract_sheet_as_xlsx(file_path: str, sheet_name: str) -> bytes | None:
-    pythoncom.CoInitialize()
-    work_dir = tempfile.mkdtemp()
-    excel    = None
-    src_wb   = None
-    dst_wb   = None
-
     try:
-        excel                    = win32com.client.Dispatch("Excel.Application")
-        excel.Visible            = False
-        excel.DisplayAlerts      = False
-        excel.AutomationSecurity = 3
+        # Load the source workbook
+        src_wb = openpyxl.load_workbook(file_path, read_only=True, data_only=True)
 
-        src_wb = excel.Workbooks.Open(
-            os.path.abspath(file_path),
-            UpdateLinks=False,
-            ReadOnly=True,
-        )
+        if sheet_name not in src_wb.sheetnames:
+            # Try strip matching
+            matched = next(
+                (s for s in src_wb.sheetnames if s.strip() == sheet_name.strip()),
+                None
+            )
+            if matched is None:
+                return None
+            sheet_name = matched
 
-        target_sheet = None
-        for sheet in src_wb.Sheets:
-            if sheet.Name == sheet_name or sheet.Name.strip() == sheet_name.strip():
-                target_sheet = sheet
-                break
+        src_ws = src_wb[sheet_name]
 
-        if target_sheet is None:
-            return None
+        # Create a new workbook and copy the sheet data
+        dst_wb = openpyxl.Workbook()
+        dst_ws = dst_wb.active
+        dst_ws.title = sheet_name
 
-        target_sheet.Copy()
-        dst_wb = excel.ActiveWorkbook
+        for row in src_ws.iter_rows(values_only=True):
+            dst_ws.append(list(row))
 
-        out_path = os.path.join(work_dir, "sheet.xlsx")
-        dst_wb.SaveAs(
-            out_path,
-            FileFormat=51,
-        )
-        dst_wb.Close(SaveChanges=False)
-        dst_wb = None
-
-        with open(out_path, "rb") as f:
-            return f.read()
+        # Save to bytes
+        output = io.BytesIO()
+        dst_wb.save(output)
+        output.seek(0)
+        return output.read()
 
     except Exception as e:
         st.caption(f"Sheet extraction error: {e}")
         return None
-
-    finally:
-        try:
-            if dst_wb is not None:
-                dst_wb.Close(SaveChanges=False)
-        except Exception:
-            pass
-        try:
-            if src_wb is not None:
-                src_wb.Close(SaveChanges=False)
-        except Exception:
-            pass
-        try:
-            if excel is not None:
-                excel.Quit()
-        except Exception:
-            pass
-        shutil.rmtree(work_dir, ignore_errors=True)
-        pythoncom.CoUninitialize()
 
 
 # ── UI ────────────────────────────────────────────────────────────────────────
@@ -122,9 +91,9 @@ def extract_sheet_as_xlsx(file_path: str, sheet_name: str) -> bytes | None:
 st.set_page_config(page_title="Excel Semantic Search", layout="wide")
 st.title("📊 Excel Semantic Search")
 
-model                 = load_model()
+model                    = load_model()
 chunked_data, embeddings = load_data()  # 👈 updated
-png_index             = load_png_index()
+png_index                = load_png_index()
 
 if not png_index:
     st.warning(
