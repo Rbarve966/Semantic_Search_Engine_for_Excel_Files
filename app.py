@@ -18,7 +18,7 @@ INDEX_PATH = "cache/png_index.pkl"
 
 @st.cache_resource(show_spinner=False)
 def load_model():
-    return SentenceTransformer("saved_model")  # 👈 local saved model
+    return SentenceTransformer("all-MiniLM-L6-v2")  # 👈 local saved model
 
 
 @st.cache_data(show_spinner=False)
