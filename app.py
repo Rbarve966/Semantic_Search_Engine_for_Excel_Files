@@ -12,7 +12,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
-INDEX_PATH = "cache/png_index.pkl"
+INDEX_PATH = "png_index.pkl"
 
 # ── Model & data ──────────────────────────────────────────────────────────────
 
