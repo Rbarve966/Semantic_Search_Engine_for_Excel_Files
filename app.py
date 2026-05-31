@@ -203,9 +203,9 @@ if query:
             st.write(f"Looking for: file='{os.path.basename(file_name)}' sheet='{sheet_name}'")
             st.write(f"PNG path found: {png_path}")
 
-           if png_path:
+            if png_path:
                 st.write(f"Image path: {png_path}")
                 st.write(f"File exists: {os.path.exists(png_path)}")
                 st.image(png_path, caption=sheet_name, use_container_width=True)
-                        else:
+                            else:
                             st.info(f"Preview not available for: {sheet_name}")
