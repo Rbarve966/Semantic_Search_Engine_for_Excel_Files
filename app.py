@@ -207,5 +207,5 @@ if query:
                 st.write(f"Image path: {png_path}")
                 st.write(f"File exists: {os.path.exists(png_path)}")
                 st.image(png_path, caption=sheet_name, use_container_width=True)
-                            else:
-                            st.info(f"Preview not available for: {sheet_name}")
+            else:
+                st.info(f"Preview not available for: {sheet_name}")
