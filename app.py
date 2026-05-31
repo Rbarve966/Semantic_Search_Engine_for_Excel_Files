@@ -97,6 +97,9 @@ model                    = load_model()
 chunked_data, embeddings = load_data()  # 👈 updated
 png_index                = load_png_index()
 
+st.write(f"PNG index size: {len(png_index)}")
+st.write(list(png_index.items())[:3])
+
 if not png_index:
     st.warning(
         "⚠️ PNG cache not found. "
