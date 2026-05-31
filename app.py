@@ -199,6 +199,10 @@ if query:
 
             png_path = get_png_path(png_index, file_name, sheet_name)
 
+            # Add this debug
+            st.write(f"Looking for: file='{os.path.basename(file_name)}' sheet='{sheet_name}'")
+            st.write(f"PNG path found: {png_path}")
+
             if png_path:
                 st.image(png_path, caption=sheet_name, use_container_width=True)
             else:
