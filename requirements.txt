@@ -3,3 +3,4 @@ numpy
 scikit-learn 
 sentence-transformers 
 openpyxl 
+xlrd
