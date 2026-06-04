@@ -72,11 +72,7 @@ model            = load_model()
 chunked_data, embeddings = load_data()
 png_index        = load_png_index()
 
-with st.sidebar:
-    st.metric("Chunks indexed", len(chunked_data))
-    st.metric("Images mapped",  len(png_index))
-    if not png_index:
-        st.warning("png_index.pkl not found — previews unavailable.")
+
 
 query = st.text_input(
     "🔍 Enter your query",
